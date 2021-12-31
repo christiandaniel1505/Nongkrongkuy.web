@@ -1,4 +1,4 @@
-name: cicd-uas
+name: CICD-UAS
 
 on:
   push:
@@ -22,10 +22,12 @@ jobs:
         run: |
           composer update
           composer install --no-dev --no-interaction --prefer-dist
+
       - name: 'Build and push'
         run: |
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/cafe_proyek .
           docker push ${{ secrets.DOCKERHUB_USERNAME}}/cafe_proyek
+
       - name: 'Write config'
         run: |
           mkdir ~/.oci
@@ -37,6 +39,7 @@ jobs:
           echo "key_file=~/.oci/oci_api_key.pem" >> ~/.oci/config
           echo "${{secrets.OCI_KEY_FILE}}" >> ~/.oci/oci_api_key.pem
           echo "${{secrets.OCI_KEY_PUBLIC}}" >> ~/.oci/oci_api_key_public.pem
+
       - name: 'Install OCI CLI'
         run: |
           curl -L -O https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh
@@ -44,10 +47,12 @@ jobs:
           ./install.sh --accept-all-defaults
           echo "/home/runner/bin" >> $GITHUB_PATH
           exec -l $SHELL
+
       - name: 'Fix Config File Permissions'
         run: |
           oci setup repair-file-permissions --file /home/runner/.oci/config
           oci setup repair-file-permissions --file /home/runner/.oci/oci_api_key.pem
+
       - name: 'Check Existing MySQL Database'
         run: |
           echo "MySQL_ID=$( \
@@ -58,6 +63,7 @@ jobs:
             --query 'data[0].id' \
             --raw-output \
             )" >> $GITHUB_ENV
+
       - name: 'Create MySQL Database'
         if: ${{!env.MySQL_ID}}
         run: |
@@ -75,6 +81,7 @@ jobs:
             --raw-output \
             --data-storage-size-in-gbs 50 \
           )" >> $GITHUB_ENV
+
       - name: 'Get MySQL Database IP'
         run: |
           echo "MySQL_IP=$( \
@@ -83,6 +90,7 @@ jobs:
             --query 'data."ip-address"' \
             --raw-output \
             )" >> $GITHUB_ENV
+
       - name: 'Check Existing Instance'
         run: |
           echo "INSTANCE_OCID=$( \
@@ -93,6 +101,7 @@ jobs:
             --query "data [0].id" \
             --raw-output \
             )" >> $GITHUB_ENV
+
       - name: 'Create Instance'
         if: ${{!env.INSTANCE_OCID}}
         run: |
@@ -111,6 +120,7 @@ jobs:
             --query "data.id" \
             --raw-output \
             )" >> $GITHUB_ENV
+
       - name: 'Get Instance IP'
         run: |
           echo "INSTANCE_IP=$( \
@@ -120,12 +130,14 @@ jobs:
             --raw-output \
             )" >> $GITHUB_ENV
           echo Instance IP: ${{ env.INSTANCE_IP }}
+
       - name: 'Wait for SSH'
         run: |
           while ! nc -w5 -z ${{ env.INSTANCE_IP }} 22; do
           sleep 5
           echo "SSH not available..."
           done; echo "SSH ready!"
+
       - name: 'Deploy Deployment Configuration'
         uses: appleboy/scp-action@master
         with:
@@ -157,7 +169,7 @@ jobs:
             if [ ! -f .env ]; then
             cp .env.example .env
             chmod 777 .env
-            mysql -u ${{secrets.DB_USERNAME}} -p${{secrets.DB_PASSWORD}} -h ${{env.MySQL_IP}} -e "CREATE DATABASE IF NOT EXISTS cafe_proyek;"
+            mysql -u ${{secrets.DB_USERNAME}} -p${{secrets.DB_PASSWORD}} -h ${{env.MySQL_IP}} -e "CREATE DATABASE IF NOT EXISTS system_sales;"
             echo -e "DB_HOST=${{env.MySQL_IP}}\nDB_USERNAME=${{secrets.DB_USERNAME}}\nDB_PASSWORD=${{secrets.DB_PASSWORD}}" >> .env
             chmod -R 777 /var/www/html/storage/
             composer install
