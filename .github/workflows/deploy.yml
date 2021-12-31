@@ -157,7 +157,7 @@ jobs:
             if [ ! -f .env ]; then
             cp .env.example .env
             chmod 777 .env
-            mysql -u ${{secrets.DB_USERNAME}} -p${{secrets.DB_PASSWORD}} -h ${{env.MySQL_IP}} -e "CREATE DATABASE IF NOT EXISTS system_sales;"
+            mysql -u ${{secrets.DB_USERNAME}} -p${{secrets.DB_PASSWORD}} -h ${{env.MySQL_IP}} -e "CREATE DATABASE IF NOT EXISTS cafe_proyek;"
             echo -e "DB_HOST=${{env.MySQL_IP}}\nDB_USERNAME=${{secrets.DB_USERNAME}}\nDB_PASSWORD=${{secrets.DB_PASSWORD}}" >> .env
             chmod -R 777 /var/www/html/storage/
             composer install

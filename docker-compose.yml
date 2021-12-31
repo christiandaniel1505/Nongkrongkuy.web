@@ -1,8 +1,8 @@
-version: "3.8"
+version: '3.8'
 
 services:
-    web:
-        image: fauzi2108/cafe_proyek
-        container_name: cafe_proyek
-        ports:
-            - 80:80
+  cafe_proyek:
+    image: daniel1505/cafe_proyek
+    container_name: cafe_proyek
+    ports:
+      - 3000:80
