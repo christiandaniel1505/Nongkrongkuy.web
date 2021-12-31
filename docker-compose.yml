@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-    cafe_proyek:
+    web:
         image: daniel1505/cafe_proyek
         container_name: cafe_proyek
         ports:
