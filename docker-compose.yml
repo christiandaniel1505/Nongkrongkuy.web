@@ -1,8 +1,8 @@
-version: '3.8'
-
+version: "3"
 services:
-  cafe_proyek:
-    image: daniel1505/cafe_proyek
-    container_name: cafe_proyek
-    ports:
-      - 3000:80
+    web:
+        image: daniel1505/cafe_proyek
+        container_name: cafe_proyek
+        restart: unless-stopped
+        ports:
+            - 80:80
